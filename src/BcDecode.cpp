@@ -2,6 +2,13 @@
 
 #include <algorithm>
 
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
+#include <arm_neon.h>
+#define GVC_HAS_NEON 1
+#else
+#define GVC_HAS_NEON 0
+#endif
+
 namespace gvc {
 
 size_t levelBytes(BcFormat f, uint32_t w, uint32_t h) {
@@ -146,3 +153,5 @@ void decodeBc(VkFormat f, const uint8_t* src, uint32_t w, uint32_t h, uint8_t* d
 #endif
 
 } // namespace gvc
+PYEOF
+echo "written"
