@@ -153,5 +153,4 @@ void decodeBc(VkFormat f, const uint8_t* src, uint32_t w, uint32_t h, uint8_t* d
 #endif
 
 } // namespace gvc
-PYEOF
-echo "written"
+
