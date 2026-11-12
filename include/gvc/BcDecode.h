@@ -2,12 +2,10 @@
 
 // CPU decoder for the DXT / S3TC (BC1, BC2, BC3) block-compressed textures old games ship, for
 // GPUs and drivers without textureCompressionBC (Adreno / Mali phones, some MoltenVK devices).
-// Output is tightly packed RGBA8.  Shared by the cod4mw and nfsmw projects: this is the merge of
-// their two near-identical private copies, keeping the hardware-accurate 565 -> 8 bit expansion
-// (bit replication, like the GPU does) and both APIs:
+// Output is tightly packed RGBA8.  Two APIs over one implementation:
 //
-//   * BcFormat / levelBytes / decodeLevel / decodeChain - nfsmw (single levels and mip chains)
-//   * VkFormat / isBcFormat / bcMipSize / decodeBc      - cod4mw (Vulkan formats, single levels)
+//   * BcFormat / levelBytes / decodeLevel / decodeChain - single levels and mip chains
+//   * VkFormat / isBcFormat / bcMipSize / decodeBc      - Vulkan formats, single levels
 //
 // BC1 "punch-through" (the 3 colour + transparent black mode, legal when color0 <= color1) is
 // decoded for BcFormat::BC1_RGBA and VK_FORMAT_BC1_RGBA_UNORM_BLOCK; BcFormat::BC1_RGB /

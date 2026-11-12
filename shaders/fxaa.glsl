@@ -1,5 +1,4 @@
-// Shared FXAA pass (NVIDIA's FXAA whitepaper version) for the post chains of the cod4mw and nfsmw
-// Vulkan ports.  glslangValidator needs the include path of this directory (-I <this dir>); the
+// Shared FXAA pass (NVIDIA's FXAA whitepaper version) for game post chains.  glslangValidator needs the include path of this directory (-I <this dir>); the
 // game CMake files pass it automatically.
 //
 // `level`: 1 = light (2 px span), 2 = medium (4 px), 3 = full (8 px, closest to the original whitepaper

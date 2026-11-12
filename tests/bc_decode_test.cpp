@@ -3,8 +3,8 @@
 // Build:  g++ -std=c++17 -O2 -Iinclude tests/bc_decode_test.cpp src/BcDecode.cpp -o /tmp/gvc_bc_decode_test
 // Run:    /tmp/gvc_bc_decode_test                                      -> exit code = number of failed checks
 //         /tmp/gvc_bc_decode_test --decode <fmt 0|1|3|5> <w> <h> <in.bin> <out.rgba>
-//             (fmt: 0 = BC1_RGB, 1 = BC1/DXT1, 3 = BC2/DXT3, 5 = BC3/DXT5; used by tools/tests/bc_decode_pil.py
-//              in nfsmw, which cross-checks against Pillow)
+//             (fmt: 0 = BC1_RGB, 1 = BC1/DXT1, 3 = BC2/DXT3, 5 = BC3/DXT5; a cross-check driver for
+//              Pillow-based decoder verification)
 
 #include <cstdio>
 #include <cstdlib>

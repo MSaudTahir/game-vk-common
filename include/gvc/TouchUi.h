@@ -1,6 +1,6 @@
 #pragma once
 
-// Touch UI core shared by the cod4mw and nfsmw ports: the pointer/phase event model both window
+// Touch UI core for Vulkan game ports: the pointer/phase event model window backends produce,
 // backends produce, the pure control math (virtual stick, steering pad, the circle-to-square move
 // stretch), virtual button layout + hit-testing, finger tracking, tap/hold bookkeeping and the
 // shared soft-disc overlay texture.  What stays game-side: the button vocabulary (action enums),
@@ -43,8 +43,8 @@ inline void joystickVector(float dx, float dy, float maxRadius, float& outX, flo
     outY = (dy / len) * clamped;
 }
 
-// The thumb moves on a circle but old engines' move commands are read as a square (e.g. CoD4's
-// PM_CmdScale): a full push at 45 degrees would give f = r = 0.71, so a forward diagonal ran at
+// The thumb moves on a circle but old engines' move commands are read as a square: a full push at
+// 45 degrees would give f = r = 0.71, so a forward diagonal ran at
 // 71% speed and the speed dipped between forward and diagonal.  Stretch the circle onto the
 // square (direction kept, magnitude = the push), like W+D on a keyboard.  Components in -1..1.
 inline void circleToSquare(float& forward, float& right) {
@@ -55,7 +55,7 @@ inline void circleToSquare(float& forward, float& right) {
     }
 }
 
-// 1D steering pad (nfsmw): full lock after `range` units of horizontal drag from where the thumb landed.
+// 1D steering pad: full lock after `range` units of horizontal drag from where the thumb landed.
 // A degenerate (zero) range steers nothing rather than snapping to full lock.
 inline float steerScalar(float drag, float range) {
     if (range <= 0.0001f) return 0.0f;
@@ -67,13 +67,13 @@ inline float steerScalar(float drag, float range) {
 // The helpers below work with any button type exposing `.x` / `.y` / `.r` (edge-anchored x, y from
 // the vertical centre (down = +), radius — in the game's layout unit; round by construction when
 // the unit is uniform, e.g. FEng units with a fixed height of 480).  `gvc::touch::Button` below is
-// one such type; the games keep their own typed ones (nfsmw's carries its `Action` enum).
+// one such type; games keep their own typed ones when they carry a typed action enum.
 
 struct Button {
     int action = 0; // the game's action id (games with typed actions keep their own button type)
     const char* label = nullptr;
     float x = 0.0f, y = 0.0f, r = 0.0f;
-    // Generic visibility flags (nfsmw's today; other games can reuse them).
+    // Generic visibility flags; games that need more context states keep their own layout entries.
     bool freeRoamOnly = false; // shown only in free roam
     bool engageOnly = false;   // shown only while an Engage target is under the car
 };
@@ -113,7 +113,7 @@ inline int hitButton(const B* buttons, size_t count, float halfWidth, float x, f
 struct Finger {
     int32_t id = -1;      // -1 = free slot
     int32_t button = -1;  // index into the game's button table, -1 = none
-    bool steering = false; // on the steering pad (nfsmw)
+    bool steering = false; // on the steering pad
     float x0 = 0.0f, y0 = 0.0f; // where the finger landed
     float x = 0.0f, y = 0.0f;
 };
@@ -191,9 +191,9 @@ private:
 
 // --- Overlay texture -------------------------------------------------------
 
-// The soft disc with a bright rim both overlays use: white RGBA8 (the game tints per button at
+// The soft disc with a bright rim for touch overlays: white RGBA8 (the game tints per button at
 // draw time).  `discAlpha` inside `rimInner`, full alpha through the rim, fading out by the edge.
-// Defaults are the nfsmw look (a 30% disc with the bright rim between 86% and 97% of the radius).
+// Defaults: a 30% disc with the bright rim between 86% and 97% of the radius.
 std::vector<uint8_t> circleTexture(unsigned size = 128, float discAlpha = 0.30f,
                                    float rimInner = 0.86f, float rimOuter = 0.97f);
 

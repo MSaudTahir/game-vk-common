@@ -3,8 +3,8 @@ project(game-vk-common LANGUAGES CXX)
 
 find_package(Vulkan QUIET)
 
-# Small C++ / Vulkan helpers shared by the cod4mw and nfsmw ports.  Everything here is new,
-# game-independent code (MIT); nothing ported from either game's decompilation lives in this repo.
+# Small C++ / Vulkan / GLSL building blocks shared across my Vulkan game projects.  Everything here
+# is new, game-independent code (MIT); nothing ported from a game's decompilation lives in this repo.
 
 add_library(gvc STATIC src/BcDecode.cpp src/TouchUi.cpp)
 add_library(gvc::gvc ALIAS gvc)

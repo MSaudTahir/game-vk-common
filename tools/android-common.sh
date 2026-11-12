@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Shared helpers for the game repos' tools/build_android.sh scripts (source this file, do not run it).
-# Extracted from the two near-identical copies in cod4mw and nfsmw; each game script keeps only what is
+# Sourced (not executed) by the game projects' tools/build_android.sh scripts.
+# Each game script keeps only what is
 # really app specific (cmake flags, FFmpeg, icons, manifest, APK / data names).
 #
 # Sets after gvc_android_env:
