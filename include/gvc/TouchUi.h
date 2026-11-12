@@ -64,12 +64,14 @@ inline float steerScalar(float drag, float range) {
 
 // --- Virtual buttons -------------------------------------------------------
 
+// The helpers below work with any button type exposing `.x` / `.y` / `.r` (edge-anchored x, y from
+// the vertical centre (down = +), radius — in the game's layout unit; round by construction when
+// the unit is uniform, e.g. FEng units with a fixed height of 480).  `gvc::touch::Button` below is
+// one such type; the games keep their own typed ones (nfsmw's carries its `Action` enum).
+
 struct Button {
-    int action = 0; // the game's action id
+    int action = 0; // the game's action id (games with typed actions keep their own button type)
     const char* label = nullptr;
-    // Layout: x from the left edge (x >= 0) or the right edge (x < 0), y from the vertical centre
-    // (down = +), r = radius — all in the game's layout unit.  Round by construction when the unit
-    // is uniform (e.g. FEng units, where the height is a fixed 480).
     float x = 0.0f, y = 0.0f, r = 0.0f;
     // Generic visibility flags (nfsmw's today; other games can reuse them).
     bool freeRoamOnly = false; // shown only in free roam
@@ -77,18 +79,21 @@ struct Button {
 };
 
 // Centre x of a button: `halfWidth` = half the screen width in the layout unit.
-inline float buttonCentreX(const Button& b, float halfWidth) {
+template <class B>
+inline float buttonCentreX(const B& b, float halfWidth) {
     return b.x >= 0 ? -halfWidth + b.x : halfWidth + b.x;
 }
 
 // Circular hit test with `slack` around the drawn radius (a little slack makes thumbs forgiving).
-inline bool buttonHit(const Button& b, float centreX, float x, float y, float slack = 1.25f) {
+template <class B>
+inline bool buttonHit(const B& b, float centreX, float x, float y, float slack = 1.25f) {
     const float dx = x - centreX, dy = y - b.y;
     return dx * dx + dy * dy <= b.r * b.r * slack * slack;
 }
 
 // Nearest visible button under (x, y), or -1.  `visible` (optional) marks which buttons are shown.
-inline int hitButton(const Button* buttons, size_t count, float halfWidth, float x, float y,
+template <class B>
+inline int hitButton(const B* buttons, size_t count, float halfWidth, float x, float y,
                      float slack = 1.25f, const bool* visible = nullptr) {
     int best = -1;
     float bestD = 1e9f;
