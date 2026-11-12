@@ -59,7 +59,7 @@ inline void bc3Alpha(const uint8_t* blk, uint8_t out[16]) {
 
 inline void storePixel(uint8_t* dst, uint32_t w, uint32_t x, uint32_t y, const uint8_t c[4]) {
     uint8_t* o = dst + (static_cast<size_t>(y) * w + x) * 4;
-    o[0] = c[0]; o[1] = c[1]; o[2] = c[2]; o[3] = c[3];
+    std::memcpy(o, c, 4);
 }
 
 template<BcFormat F>
@@ -78,6 +78,24 @@ inline void decodeBlock(const uint8_t* blk, uint8_t* dst, uint32_t w, uint32_t h
                          (static_cast<uint32_t>(colorBlk[6]) << 16) | (static_cast<uint32_t>(colorBlk[7]) << 24);
     const bool full = (bx + 4 <= w && by + 4 <= h);
     if (full) {
+#if GVC_HAS_NEON
+        const uint32_t pal32[4] = {
+            uint32_t(pal[0][0]) | (uint32_t(pal[0][1]) << 8) | (uint32_t(pal[0][2]) << 16) | (uint32_t(pal[0][3]) << 24),
+            uint32_t(pal[1][0]) | (uint32_t(pal[1][1]) << 8) | (uint32_t(pal[1][2]) << 16) | (uint32_t(pal[1][3]) << 24),
+            uint32_t(pal[2][0]) | (uint32_t(pal[2][1]) << 8) | (uint32_t(pal[2][2]) << 16) | (uint32_t(pal[2][3]) << 24),
+            uint32_t(pal[3][0]) | (uint32_t(pal[3][1]) << 8) | (uint32_t(pal[3][2]) << 16) | (uint32_t(pal[3][3]) << 24)
+        };
+        for (uint32_t py = 0; py < 4; ++py) {
+            uint8_t* row = dst + (static_cast<size_t>(by + py) * w + bx) * 4;
+            for (uint32_t px = 0; px < 4; ++px) {
+                const uint32_t i = py * 4 + px;
+                uint32_t c = pal32[(idx >> (2 * i)) & 3];
+                if constexpr (F == BcFormat::BC2 || F == BcFormat::BC3) c = (c & 0x00FFFFFFu) | (uint32_t(alpha[i]) << 24);
+                else if constexpr (F == BcFormat::BC1_RGB) c |= 0xFF000000u;
+                std::memcpy(row + px * 4, &c, 4);
+            }
+        }
+#else
         for (uint32_t py = 0; py < 4; ++py) {
             uint8_t* row = dst + (static_cast<size_t>(by + py) * w + bx) * 4;
             for (uint32_t px = 0; px < 4; ++px) {
@@ -90,6 +108,7 @@ inline void decodeBlock(const uint8_t* blk, uint8_t* dst, uint32_t w, uint32_t h
                 else o[3] = c[3];
             }
         }
+#endif
     } else {
         for (uint32_t py = 0; py < 4; ++py) {
             const uint32_t y = by + py; if (y >= h) break;
@@ -133,16 +152,14 @@ void decodeLevel(BcFormat f, const uint8_t* src, uint32_t w, uint32_t h, uint8_t
 std::vector<uint8_t> decodeChain(BcFormat f, uint32_t w, uint32_t h, uint32_t levels,
                                  const uint8_t* src, size_t srcSize) {
     size_t total = 0;
-    {
-        uint32_t mw = w, mh = h;
-        for (uint32_t l = 0; l < levels; ++l) {
-            total += static_cast<size_t>(mw) * mh * 4;
-            mw = std::max(1u, mw / 2); mh = std::max(1u, mh / 2);
-        }
+    uint32_t mw = w, mh = h;
+    for (uint32_t l = 0; l < levels; ++l) {
+        total += static_cast<size_t>(mw) * mh * 4;
+        mw = std::max(1u, mw / 2); mh = std::max(1u, mh / 2);
     }
     std::vector<uint8_t> out(total, 0);
     size_t so = 0, dO = 0;
-    uint32_t mw = w, mh = h;
+    mw = w; mh = h;
     for (uint32_t l = 0; l < levels; ++l) {
         const size_t sb = levelBytes(f, mw, mh);
         if (so + sb <= srcSize) decodeLevel(f, src + so, mw, mh, out.data() + dO);
