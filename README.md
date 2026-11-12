@@ -10,6 +10,7 @@ decompilation lives in this repo.
 | Path | What it is | Used by |
 |---|---|---|
 | `include/gvc/BcDecode.h`, `src/BcDecode.cpp` | CPU BC1/BC2/BC3 (DXT1/3/5) → RGBA8 decoder for GPUs without `textureCompressionBC` (Adreno / Mali, some MoltenVK). One implementation, two APIs: `BcFormat`-based (`decodeLevel` / `decodeChain`) and `VkFormat`-based (`decodeBc` / `bcMipSize` / `isBcFormat`). | nfsmw (was `src/BcDecode.*`), cod4mw (was `src/gfx_vulkan/BcDecode.*`) |
+| `include/gvc/TouchUi.h`, `src/TouchUi.cpp` | Touch UI core: the five-phase pointer event model, virtual-stick / steering / circle-to-square math, virtual button layout + hit-testing, finger tracking, tap/hold bookkeeping, soft-disc overlay texture. Game-side per project: action enums, layout coordinates, context policy, renderer glue. | nfsmw (`game::TouchControls`), cod4mw (`platform::TouchOverlay` / `InputBridge`) |
 | `shaders/fxaa.glsl` | FXAA post pass (`gvc_fxaa(sampler2D, uv, level)`, levels 1–3), included by the post-combine shaders via `#include` (`glslangValidator -I`). | nfsmw `post_combine.frag`, cod4mw `post_composite.frag` |
 | `tools/android-common.sh` | Sourceable helpers for the no-Gradle Android APK builds: SDK/NDK/build-tools discovery, Activity → classes.dex, debug keystore, zipalign + apksigner. | both `tools/build_android.sh` |
 
