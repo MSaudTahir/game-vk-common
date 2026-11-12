@@ -6,7 +6,7 @@ find_package(Vulkan QUIET)
 # Small C++ / Vulkan / GLSL building blocks shared across my Vulkan game projects.  Everything here
 # is new, game-independent code (MIT); nothing ported from a game's decompilation lives in this repo.
 
-add_library(gvc STATIC src/BcDecode.cpp src/TouchUi.cpp)
+add_library(gvc STATIC src/BcDecode.cpp src/TouchUi.cpp src/Quality.cpp)
 add_library(gvc::gvc ALIAS gvc)
 target_include_directories(gvc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(gvc PUBLIC cxx_std_17)
@@ -27,4 +27,7 @@ if (GVC_BUILD_TESTS)
     add_executable(gvc_touch_ui_test tests/touch_ui_test.cpp)
     target_link_libraries(gvc_touch_ui_test PRIVATE gvc)
     add_test(NAME touch_ui COMMAND gvc_touch_ui_test)
+    add_executable(gvc_quality_test tests/quality_test.cpp)
+    target_link_libraries(gvc_quality_test PRIVATE gvc)
+    add_test(NAME quality COMMAND gvc_quality_test)
 endif()
